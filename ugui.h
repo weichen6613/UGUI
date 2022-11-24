@@ -39,7 +39,7 @@ typedef struct
    UG_S16 char_height;
    UG_U16 start_char;
    UG_U16 end_char;
-   UG_U8  *widths;
+   UG_U8  *widths; // 记录字符宽度的数组，每个字符都有一个宽度，如果为null则表示使用 默认的 char_width
 } UG_FONT;
 
 #ifdef USE_FONT_4X6
@@ -318,7 +318,7 @@ typedef struct
 /* Window structure */
 struct S_WINDOW
 {
-   UG_U8 objcnt;
+   UG_U8 objcnt; //object list 里面 object 的数量
    UG_OBJECT* objlst;
    UG_U8 state;
    UG_COLOR fc;
@@ -559,9 +559,9 @@ typedef struct
 /* -------------------------------------------------------------------------------- */
 typedef struct
 {
-   void (*pset)(UG_S16,UG_S16,UG_COLOR);
-   UG_S16 x_dim;
-   UG_S16 y_dim;
+   void (*pset)(UG_S16,UG_S16,UG_COLOR); // 用于绘制点的的函数，第一个参数是x坐标 第二个参数是y坐标
+   UG_S16 x_dim; //GUI 默认宽度 x轴
+   UG_S16 y_dim; //GUI 默认长度 y轴
    UG_TOUCH touch;
    UG_WINDOW* next_window;
    UG_WINDOW* active_window;

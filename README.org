@@ -1,0 +1,2 @@
+* README
+这个库没有完成 button，textbox，checkbox 都没有功能 所以没有必要浪费时间在上面，

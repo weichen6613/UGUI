@@ -4617,7 +4617,8 @@ void UG_FillScreen( UG_COLOR c )
 void UG_FillFrame( UG_S16 x1, UG_S16 y1, UG_S16 x2, UG_S16 y2, UG_COLOR c )
 {
    UG_S16 n,m;
-
+   // 这里可以将 x1跟 x2 反过来，但是这个side effect 并不是很好的设计，
+   // 如果直接使用 assert(x1<x2);assert(y1<y2); 就可以了 
    if ( x2 < x1 )
    {
       n = x2;
@@ -4645,7 +4646,8 @@ void UG_FillFrame( UG_S16 x1, UG_S16 y1, UG_S16 x2, UG_S16 y2, UG_COLOR c )
       }
    }
 }
-
+// 参数 r 是 Corner radius
+// 这个函数用于绘制 圆角 的Frame 
 void UG_FillRoundFrame( UG_S16 x1, UG_S16 y1, UG_S16 x2, UG_S16 y2, UG_S16 r, UG_COLOR c )
 {
    UG_S16  x,y,xd;
@@ -4668,7 +4670,14 @@ void UG_FillRoundFrame( UG_S16 x1, UG_S16 y1, UG_S16 x2, UG_S16 y2, UG_S16 r, UG
    xd = 3 - (r << 1);
    x = 0;
    y = r;
-
+   //绘制一个 左上圆角 的右边开始 到右上圆角左边的 矩形，
+   // 这个矩形的 高是 y1到y2
+   // 所以下面的算法也就知道了 就是 填充 这个矩形 的左右 两边，
+   // 这两边 包括了 四个圆角
+   // xd 这个算法没看懂 但是就是 顺序的填充 线条
+   // 如果积分的的话 要开平方，这里估计是别的算法
+   // 
+   
    UG_FillFrame(x1 + r, y1, x2 - r, y2, c);
 
    while ( x <= y )
@@ -4695,7 +4704,8 @@ void UG_FillRoundFrame( UG_S16 x1, UG_S16 y1, UG_S16 x2, UG_S16 y2, UG_S16 r, UG
      x++;
    }
 }
-
+// fill 算法 用的是 每个点 +1 就是相邻的点 
+// Mesh 算法 用的是 +2 就是相邻点的相邻点 
 void UG_DrawMesh( UG_S16 x1, UG_S16 y1, UG_S16 x2, UG_S16 y2, UG_COLOR c )
 {
    UG_S16 n,m;
@@ -4936,6 +4946,9 @@ void UG_DrawLine( UG_S16 x1, UG_S16 y1, UG_S16 x2, UG_S16 y2, UG_COLOR c )
    }  
 }
 
+//这个 GUI 提供的字库是每种字符都有 255个字符 不是ascii的127个字符
+//所以除了0 以外的都是字符
+// 使用 GUI 默认的 Font 
 void UG_PutString( UG_S16 x, UG_S16 y, char* str )
 {
    UG_S16 xp,yp;
@@ -4951,12 +4964,12 @@ void UG_PutString( UG_S16 x, UG_S16 y, char* str )
 	  if (chr < gui->font.start_char || chr > gui->font.end_char) continue;
       if ( chr == '\n' )
       {
-         xp = gui->x_dim;
+         xp = gui->x_dim; //如果要换行则从 下一行的x位置开始 否则继续
          continue;
       }
 	  cw = gui->font.widths ? gui->font.widths[chr - gui->font.start_char] : gui->font.char_width;
 
-      if ( xp + cw > gui->x_dim - 1 )
+      if ( xp + cw > gui->x_dim - 1 ) // xp+字符宽度 如果大于 gui的宽度则另起一行
       {
          xp = x;
          yp += gui->font.char_height+gui->char_v_space;
@@ -4991,11 +5004,12 @@ void UG_ConsolePutString( char* str )
       cw = gui->font.widths ? gui->font.widths[chr - gui->font.start_char] : gui->font.char_width;
       gui->console.x_pos += cw+gui->char_h_space;
 
-      if ( gui->console.x_pos+cw > gui->console.x_end )
+      if ( gui->console.x_pos+cw > gui->console.x_end ) //如果 x超过了界限则换下一行
       {
          gui->console.x_pos = gui->console.x_start;
          gui->console.y_pos += gui->font.char_height+gui->char_v_space;
       }
+      //如果 y超过了界限 则 刷新一次界面 从界面头开始输出字符
       if ( gui->console.y_pos+gui->font.char_height > gui->console.y_end )
       {
          gui->console.x_pos = gui->console.x_start;
@@ -5520,7 +5534,8 @@ UG_RESULT _UG_DeleteObject( UG_WINDOW* wnd, UG_U8 type, UG_U8 id )
    }
    return UG_RESULT_FAIL;
 }
-
+// 遍历 window 内的object 如果 touch的坐标在 object 的内部 则 object 的state 改变
+// state 的变化 待补充 
 void _UG_ProcessTouchData( UG_WINDOW* wnd )
 {
    UG_S16 xp,yp;
